@@ -1,0 +1,56 @@
+# Python & Virtual Environment
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py~
+
+# Jupyter & Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Streamlit
+.streamlit/
+streamlit_config.toml
+
+# Data & Models
+data/raw/
+data/clean/*.csv
+model/*.pkl
+
+# Assets
+assets/plots/*.png
+assets/*.png
+assets/*.jpg
+
+# Logs & Temp
+*.log
+*.tmp
+temp/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build & Dist
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Environment
+.env
+.env.local
+*.env
+
+# Ollama & Local
+ollama/
+*.ollama
