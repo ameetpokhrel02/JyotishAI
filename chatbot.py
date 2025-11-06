@@ -2,6 +2,10 @@ import streamlit as st
 import ollama
 import re
 import random
+import speech_recognition as sr
+from gtts import gTTS
+import os
+import tempfile
 
 # === CONFIG ===
 st.set_page_config(page_title="JyotishAI", layout="wide")
@@ -53,6 +57,38 @@ def extract_input(text):
     
     return birth_date, question
 
+# === VOICE INPUT ===
+def recognize_speech():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        st.info("Listening... Speak now (Nepali or English)")
+        audio = r.listen(source, timeout=5)
+    try:
+        text = r.recognize_google(audio, language="ne-NP")
+        st.success(f"Recognized: {text}")
+        return text
+    except sr.UnknownValueError:
+        try:
+            text = r.recognize_google(audio, language="en-IN")
+            st.success(f"Recognized: {text}")
+            return text
+        except:
+            st.error("Could not understand audio.")
+            return ""
+    except Exception as e:
+        st.error(f"Error: {e}")
+        return ""
+
+# === VOICE OUTPUT ===
+def speak_text(text, lang_code="ne"):
+    try:
+        tts = gTTS(text=text, lang=lang_code, slow=False)
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as fp:
+            tts.save(fp.name)
+            return fp.name
+    except:
+        return None
+
 # === CHAT ===
 if "messages" not in st.session_state:
     st.session_state.messages = [
@@ -62,11 +98,21 @@ if "messages" not in st.session_state:
          "नमस्ते! **जन्म मिति + प्रश्न** भन्नुहोस् (उदाहरण: `२००४-०६-११, करियर?`)।"}
     ]
 
+# Display chat
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-if prompt := st.chat_input("Your message..."):
+# === INPUT ROW ===
+col1, col2 = st.columns([4, 1])
+with col1:
+    prompt = st.chat_input("Type or press microphone to speak...")
+with col2:
+    if st.button("microphone", key="voice"):
+        prompt = recognize_speech()
+
+# === PROCESS INPUT ===
+if prompt:
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
@@ -80,8 +126,14 @@ if prompt := st.chat_input("Your message..."):
                 pred = predict_with_ollama(kundali, question)
                 l = kundali['nepali'] if lang == "नेपाली" else kundali
                 response = f"**Date:** {birth_date}\n**Lagna:** {l['lagna']} | **Sun:** {l['sun']} | **Moon:** {l['moon']}\n\n{pred}"
+                
+                # === VOICE OUTPUT ===
+                voice_text = pred.split("उपाय:")[0].strip() if "उपाय:" in pred else pred[:150]
+                audio_file = speak_text(voice_text, lang_code="ne" if lang == "नेपाली" else "en")
+                if audio_file:
+                    st.audio(audio_file, format="audio/mp3")
+                    os.unlink(audio_file)
         else:
-            # === NATURAL REPLIES FOR GREETINGS ===
             greetings = {
                 'hi': "Namaste! Ready for your prediction?" if lang == "English" else "नमस्ते! तपाईंको भविष्यवाणी तयार छ?",
                 'hello': "Hi! Just say your birth date and question." if lang == "English" else "नमस्ते! जन्म मिति र प्रश्न भन्नुहोस्।",
@@ -102,8 +154,7 @@ if prompt := st.chat_input("Your message..."):
 # === SIDEBAR ===
 with st.sidebar:
     st.header("JyotishAI")
-    st.info(f"**Language:** {lang}\n\nDemo Mode (No swisseph)\n\nOllama Llama3.2:1b")
+    st.info(f"**Language:** {lang}\n\nmicrophone Voice Input + Output\n\nDemo Mode\n\nOllama Llama3.2:1b")
     if st.button("Clear Chat"):
         st.session_state.messages = [{"role": "assistant", "content": "New chat started!"}]
         st.rerun()
-
