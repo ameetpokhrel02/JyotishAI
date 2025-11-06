@@ -1,0 +1,9 @@
+[
+  {"planet": "Sun", "house": 1, "effect": "Leadership", "remedy": "Offer water to Sun"},
+  {"planet": "Moon", "house": 4, "effect": "Happy home", "remedy": "Offer milk on Monday"},
+  {"planet": "Mars", "house": 10, "effect": "Career success", "remedy": "Chant Hanuman Chalisa"},
+  {"planet": "Mercury", "house": 5, "effect": "Intelligence", "remedy": "Feed birds"},
+  {"planet": "Jupiter", "house": 9, "effect": "Luck", "remedy": "Donate banana"},
+  {"planet": "Venus", "house": 7, "effect": "Happy marriage", "remedy": "Wear white"},
+  {"planet": "Saturn", "house": 10, "effect": "Stable job", "remedy": "Feed crows"}
+]
