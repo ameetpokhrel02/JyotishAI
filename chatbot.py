@@ -86,7 +86,7 @@ def recognize_speech():
             return ""
 
 # === VOICE OUTPUT ===
-def speak_text(text, lang_code="ne"):
+def speak_text(text, lang_code="hi"): # Use Hi fir Nepali TTS
     try:
         tts = gTTS(text=text, lang=lang_code, slow=False)
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as fp:
