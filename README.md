@@ -1,20 +1,34 @@
-# JyotishAI – Vedic Astrology Chatbot (FYP 2025)
+# JyotishAI – Real-Time Vedic Astrology Chatbot (JyotishAI in 2025)
 
 ![JyotishAI](assets/logo.png)
 
-**Real-time, local, Nepali/English Vedic astrology advisor**  
-Powered by **Ollama Llama3.2:1b** + **Streamlit**
+**Nepal’s first offline, voice + video-enabled Vedic astrology AI**  
+**100% Local • No Internet • Nepali/English**
 
 ---
 
 ## Features
 
-- **Auto kundali** from birth date (`2004-06-11`)
-- **Smart extraction** of Lagna, Sun, Moon
-- **Natural chat** in **English / नेपाली**
-- **Ollama-powered predictions** (100% offline)
-- **Remedy included** in every response
-- **No OpenAI, No Internet**
+| Feature | Description |
+|-------|-----------|
+| **Real-Time Chat** | Type or speak → Instant reply |
+| **Voice Input** | Speak in **Nepali/English** |
+| **Voice Output** | AI **speaks in Nepali** |
+| **Video Call** | Face-to-face consultation + face detection |
+| **Auto Kundali** | From birth date (`2004-06-11`) |
+| **Smart Prediction** | Lagna, Sun, Moon + Vedic remedy |
+| **General Chat** | Ask anything (not just astrology) |
+| **Full History** | All chats saved |
+
+---
+
+## Demo
+
+> **You:** `2004-06-11, career?`  
+> **JyotishAI:**  
+> **Lagna:** सिंह | **Sun:** मिथुन | **Moon:** मेष  
+> तपाईंको करियर २०२७ पछि उचाइमा पुग्नेछ...  
+> **उपाय:** बिहीबार केरा दान गर्नुहोस्।
 
 ---
 
