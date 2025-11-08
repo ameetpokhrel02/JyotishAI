@@ -3,7 +3,7 @@ import pandas as pd
 import joblib
 import os
 
-# === CONFIG ===
+# === CONFIG FILES===
 st.set_page_config(page_title="JyotishAI", layout="centered")
 st.title("JyotishAI – Your Vedic Astrology Predictor")
 
