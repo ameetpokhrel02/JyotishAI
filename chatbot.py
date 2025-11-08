@@ -18,7 +18,7 @@ st.markdown("**Say or type: `2004-06-11, career?` or start video call!**")
 # Language
 lang = st.sidebar.selectbox("Language / भाषा", ["English", "नेपाली"])
 
-# === MOCK KUNDALI ===
+# === MOCK KUNDALI  ===
 def get_kundali(birth_date):
     signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']
     nepali = ['मेष', 'वृष', 'मिथुन', 'कर्कट', 'सिंह', 'कन्या', 'तुला', 'वृश्चिक', 'धनु', 'मकर', 'कुम्भ', 'मीन']
@@ -104,7 +104,7 @@ def video_frame_callback(frame):
         cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
     return av.VideoFrame.from_ndarray(img, format="bgr24")
 
-# === VIDEO CALL SECTION ===
+# === VIDEO CALL SECTION  jyotishai===
 if st.button("Start Video Call", key="start_video"):
     st.session_state.in_video_call = True
 
