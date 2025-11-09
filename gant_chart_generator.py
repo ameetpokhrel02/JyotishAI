@@ -96,9 +96,3 @@ ax.xaxis.set_minor_locator(mdates.DayLocator(interval=15))
 plt.xlabel("Timeline", fontsize=12)
 plt.grid(True, axis='x', alpha=0.3)
 
-# === LEGEND ===
-from matplotlib.patches import Patch
-legend_elements = [Patch(facecolor=color, label=section) for section, color in colors.items()]
-legend_elements.append(plt.Line2D([0], [0], marker='D', color='w', markerfacecolor='red', markersize=10, label='Milestone'))
-ax.legend(handles=legend_elements, loc='upper right', bbox_to_anchor=(1, 1), fontsize=9)
-
