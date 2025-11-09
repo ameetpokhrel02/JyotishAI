@@ -102,13 +102,3 @@ legend_elements = [Patch(facecolor=color, label=section) for section, color in c
 legend_elements.append(plt.Line2D([0], [0], marker='D', color='w', markerfacecolor='red', markersize=10, label='Milestone'))
 ax.legend(handles=legend_elements, loc='upper right', bbox_to_anchor=(1, 1), fontsize=9)
 
-# === SAVE FILES ===
-plt.tight_layout()
-plt.savefig("pandityatra_gantt_offline.png", dpi=300, bbox_inches='tight')
-plt.savefig("pandityatra_gantt_offline.pdf", bbox_inches='tight')
-print("Gantt Chart Saved:")
-print("   pandityatra_gantt_offline.png")
-print("   pandityatra_gantt_offline.pdf")
-
-# Optional: Show plot
-# plt.show()
