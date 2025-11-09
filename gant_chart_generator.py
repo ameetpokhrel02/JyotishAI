@@ -86,13 +86,3 @@ for name, date in milestones:
     mdate = datetime.strptime(date, "%Y-%m-%d")
     ax.plot(mdate, y_pos[0], 'D', markersize=12, color='red', label="Milestone" if name == milestones[0][0] else "")
 
-# === FORMATTING ===
-ax.set_yticks(y_pos)
-ax.set_yticklabels(labels, fontsize=9)
-ax.invert_yaxis()
-ax.xaxis.set_major_locator(mdates.MonthLocator())
-ax.xaxis.set_major_formatter(mdates.DateFormatter('%b %Y'))
-ax.xaxis.set_minor_locator(mdates.DayLocator(interval=15))
-plt.xlabel("Timeline", fontsize=12)
-plt.grid(True, axis='x', alpha=0.3)
-
