@@ -15,28 +15,11 @@ tasks = [
 
 ]
 
-# === MILESTONES ===
-milestones = [
-    ["Pandit Verification", "2025-12-28"],
-    ["MVP Ready", "2026-02-01"],
-    ["Final Report", "2026-04-10"],
-    ["Defense", "2026-04-30"],
-]
-
 # === SETUP FIGURE ===
 fig, ax = plt.subplots(figsize=(14, 10))
 plt.title("PanditYatra – FYP Gantt Chart (Nov 2025 – Apr 2026)", fontsize=16, fontweight='bold', pad=20)
 
-# === COLORS BY SECTION ===
-colors = {
-    "Research & Planning": "#4CAF50",
-    "Backend": "#2196F3",
-    "Frontend": "#FF9800",
-    "Innovation": "#9C27B0",
-    "Optional": "#F44336",
-    "Testing": "#FFEB3B",
-    "Documentation": "#795548"
-}
+
 
 # === PLOT BARS ===
 y_pos = np.arange(len(tasks))
