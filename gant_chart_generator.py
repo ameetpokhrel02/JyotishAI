@@ -12,11 +12,7 @@ import numpy as np
 tasks = [
    
 
-    ["Offline Kundali Chatbot", "2026-02-01", 21, "Innovation"],
-    ["Books Buy/Borrow", "2026-02-22", 10, "Innovation"],
-    ["Whereby Video Call", "2026-02-15", 14, "Innovation"],
-    ["Real-Time Chat", "2026-03-01", 10, "Innovation"],
-    ["Local Storage", "2026-03-11", 7, "Innovation"],
+
 
     ["AR Puja Planner (Optional)", "2026-03-01", 21, "Optional"],
     ["Community Sharing (Optional)", "2026-03-22", 14, "Optional"],
