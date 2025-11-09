@@ -10,11 +10,7 @@ import numpy as np
 
 # === TASK DATA ===
 tasks = [
-    # [Task Name, Start Date, Duration in Days, Section]
-    ["Literature Review & Market Analysis", "2025-11-01", 14, "Research & Planning"],
-    ["Problem Statement & Proposal Draft", "2025-11-15", 10, "Research & Planning"],
-    ["Supervisor Feedback & Final Proposal", "2025-11-25", 7, "Research & Planning"],
-    ["Tech Stack Finalization", "2025-11-15", 7, "Research & Planning"],
+   
 
     ["Django + PostgreSQL + Docker", "2025-11-22", 21, "Backend"],
     ["Models (User, Pandit, Booking)", "2025-12-13", 14, "Backend"],
