@@ -12,19 +12,6 @@ import numpy as np
 tasks = [
    
 
-    ["Django + PostgreSQL + Docker", "2025-11-22", 21, "Backend"],
-    ["Models (User, Pandit, Booking)", "2025-12-13", 14, "Backend"],
-    ["JWT + OTP Auth", "2025-12-27", 10, "Backend"],
-    ["Admin Dashboard (4 Roles)", "2025-12-15", 14, "Backend"],
-    ["API Endpoints", "2026-01-01", 14, "Backend"],
-
-    ["React + Tailwind + shadcn", "2025-12-01", 21, "Frontend"],
-    ["User Dashboard (6 Tabs)", "2025-12-22", 10, "Frontend"],
-    ["AI Pandit Recommender", "2026-01-01", 14, "Frontend"],
-    ["Unified Cart", "2026-01-15", 10, "Frontend"],
-    ["Payments (Khalti/Stripe)", "2026-01-20", 14, "Frontend"],
-    ["PWA Offline", "2026-02-03", 7, "Frontend"],
-
     ["Offline Kundali Chatbot", "2026-02-01", 21, "Innovation"],
     ["Books Buy/Borrow", "2026-02-22", 10, "Innovation"],
     ["Whereby Video Call", "2026-02-15", 14, "Innovation"],
