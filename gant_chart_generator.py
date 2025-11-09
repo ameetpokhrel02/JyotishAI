@@ -13,12 +13,6 @@ tasks = [
    
 
 
-
-    ["AR Puja Planner (Optional)", "2026-03-01", 21, "Optional"],
-    ["Community Sharing (Optional)", "2026-03-22", 14, "Optional"],
-    ["Testing & UAT", "2026-03-15", 31, "Testing"],
-    ["Documentation & PPT", "2026-04-01", 14, "Documentation"],
-    ["Final Presentation", "2026-04-30", 1, "Documentation"],
 ]
 
 # === MILESTONES ===
