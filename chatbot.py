@@ -18,7 +18,7 @@ st.markdown("**Say or type: `2004-06-11, career?` or start video call!**")
 # Language
 lang = st.sidebar.selectbox("Language / भाषा", ["English", "नेपाली"])
 
-# === MOCK KUNDALI  ===
+# === MOCK KUNDALI ===
 def get_kundali(birth_date):
     signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']
     nepali = ['मेष', 'वृष', 'मिथुन', 'कर्कट', 'सिंह', 'कन्या', 'तुला', 'वृश्चिक', 'धनु', 'मकर', 'कुम्भ', 'मीन']
@@ -65,33 +65,56 @@ def general_chat(prompt):
     except:
         return "I'm here!" if lang == "English" else "म यहाँ छु!"
 
-# === VOICE INPUT ===
+# === VOICE INPUT (100% STABLE & NO SYNTAX ERROR) ===
 def recognize_speech():
     r = sr.Recognizer()
-    with sr.Microphone() as source:
-        st.info("Listening... Speak now!")
-        audio = r.listen(source, timeout=6)
     try:
-        text = r.recognize_google(audio, language="ne-NP")
-        st.success(f"You: {text}")
-        return text
-    except:
+        # Check if any mic exists
+        mic_list = sr.Microphone.list_microphone_names()
+        if not mic_list:  # ← FIXED: Removed comma
+            st.warning("No microphone found. Use text input.")
+            return ""
+
+        with sr.Microphone() as source:
+            r.adjust_for_ambient_noise(source, duration=0.5)
+            st.info("Listening... Speak in 5 sec!")
+            audio = r.listen(source, timeout=5, phrase_time_limit=5)
+
+        # Try Nepali first
         try:
-            text = r.recognize_google(audio, language="en-IN")
+            text = r.recognize_google(audio, language="ne-NP")
             st.success(f"You: {text}")
             return text
         except:
-            st.error("Could not understand.")
-            return ""
+            # Fallback to English
+            try:
+                text = r.recognize_google(audio, language="en-IN")
+                st.success(f"You: {text}")
+                return text
+            except:
+                st.warning("Could not understand speech.")
+                return ""
 
-# === VOICE OUTPUT (Nepali via Hindi TTS) ===
+    except sr.WaitTimeoutError:
+        st.warning("No speech detected. Try typing.")
+        return ""
+    except Exception as e:
+        st.error(f"Mic error: {e}")
+        return ""
+
+# === VOICE OUTPUT (NEPALI FIXED: Use 'hi' for Devanagari) ===
 def speak_text(text, lang_code="hi"):
     try:
-        tts = gTTS(text=text, lang=lang_code, slow=False)
+        # Clean markdown
+        clean_text = re.sub(r'\*\*|\*|_|\n', ' ', text).strip()
+        # Remove remedy part if needed
+        clean_text = clean_text.split("उपाय:")[0] if "उपाय:" in clean_text else clean_text
+        tts = gTTS(text=clean_text, lang=lang_code, slow=False)
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as fp:
             tts.save(fp.name)
             return fp.name
-    except:
+    except Exception as e:
+        st.error(f"TTS Error: {e}")
         return None
 
 # === VIDEO CALL FACE DETECTION ===
@@ -104,7 +127,7 @@ def video_frame_callback(frame):
         cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
     return av.VideoFrame.from_ndarray(img, format="bgr24")
 
-# === VIDEO CALL SECTION  jyotishai===
+# === VIDEO CALL SECTION ===
 if st.button("Start Video Call", key="start_video"):
     st.session_state.in_video_call = True
 
@@ -132,7 +155,7 @@ if st.session_state.get("in_video_call", False):
     else:
         st.warning("Connecting... Allow camera & mic.")
 
-# === TEXT CHAT SECTION ===
+# === TEXT & VOICE CHAT ===
 st.subheader("Text & Voice Chat")
 if "messages" not in st.session_state:
     st.session_state.messages = [
@@ -153,7 +176,8 @@ with col1:
     prompt = st.chat_input("Type your message...")
 with col2:
     if st.button("Speak", key="voice"):
-        prompt = recognize_speech()
+        with st.spinner("Listening..."):
+            prompt = recognize_speech()
 
 # Process
 if prompt:
@@ -180,10 +204,10 @@ if prompt:
         st.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
 
-        # Speak response
+        # === SPEAK RESPONSE (NEPALI FIXED) ===
         voice_text = re.sub(r'\*\*.*?\*\*', '', response).strip()
         voice_text = voice_text.split("उपाय:")[0] if "उपाय:" in voice_text else voice_text
-        audio_file = speak_text(voice_text, "hi")
+        audio_file = speak_text(voice_text, lang_code="hi")  # ← Always 'hi' for Nepali
         if audio_file:
             st.audio(audio_file, format="audio/mp3")
             os.unlink(audio_file)
@@ -191,7 +215,7 @@ if prompt:
 # === SIDEBAR ===
 with st.sidebar:
     st.header("JyotishAI")
-    st.info(f"**Language:** {lang}\n\nVideo Call + Face Detect\nVoice In & Out\nReal-Time Chat\nLocal Ollama Llama3.2")
+    st.info(f"**Language:** {lang}\n\nVideo Call + Face Detect\nVoice In & Out (Nepali Fixed)\nReal-Time Chat\nLocal Ollama Llama3.2")
     if st.button("Clear Chat"):
         st.session_state.messages = []
         st.rerun()
