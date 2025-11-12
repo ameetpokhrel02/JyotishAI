@@ -185,7 +185,7 @@ def speak_text(text):
         return None
 
 # ========================================
-# 11. VIDEO CALL
+# 11. VIDEO CALL services
 # ========================================
 def video_frame_callback(frame):
     img = frame.to_ndarray(format="bgr24")
