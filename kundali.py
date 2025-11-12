@@ -215,7 +215,7 @@ if st.session_state.get("in_video_call", False):
         st.rerun()
 
 # ========================================
-# 12. CHAT
+# 12. CHAT bot
 # ========================================
 st.subheader("Chat with JyotishAI")
 
