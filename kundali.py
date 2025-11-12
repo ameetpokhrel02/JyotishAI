@@ -171,7 +171,7 @@ def recognize_speech():
         return ""
 
 # ========================================
-# 10. VOICE OUTPUT
+# 10. VOICE OUTPUT ENGLISH NEPASLI
 # ========================================
 def speak_text(text):
     clean = re.sub(r'\*\*|\*|_|\n', ' ', text).strip()
