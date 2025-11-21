@@ -84,7 +84,7 @@ def general_chat(prompt):
         return "I'm here!" if lang == "English" else "म यहाँ छु!"
 
 # ========================================
-# 7. VOICE INPUT (SAFE & STABLE)
+# 7. VOICE INPUT ENG / NEPAL
 # ========================================
 def recognize_speech():
     r = sr.Recognizer()
