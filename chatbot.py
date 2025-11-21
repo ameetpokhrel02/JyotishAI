@@ -117,7 +117,7 @@ def recognize_speech():
         return ""
 
 # ========================================
-# 8. VOICE OUTPUT (BILINGUAL)
+# 8. VOICE OUTPUT and CLEANUP
 # ========================================
 def speak_text(text):
     clean = re.sub(r'\*\*|\*|_|\n', ' ', text).strip()
