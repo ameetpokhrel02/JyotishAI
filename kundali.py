@@ -267,7 +267,7 @@ if prompt:
             os.unlink(audio)
 
 # ========================================
-# 13. SIDEBAR
+# 13. SIDEBAR FINAL
 # ========================================
 with st.sidebar:
     st.header("JyotishAI v2.0")
