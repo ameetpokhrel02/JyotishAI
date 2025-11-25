@@ -1,7 +1,7 @@
 # kundali.py
 # JyotishAI v2.0 – Final, Bilingual, Offline, No Crash
 # FYP 2025 | 100% Local | Works on "hi", "how are you", and astrology
-
+import swisseph as swe
 import streamlit as st
 import os
 import tempfile
@@ -28,6 +28,10 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# === SET EPHE PATH (CRITICAL) ===
+swe.set_ephe_path("ephe")  # ← Points to your ephe folder
+
+# Rest of code...
 # ========================================
 # 2. DUMMY MODEL (AUTO CREATE)
 # ========================================

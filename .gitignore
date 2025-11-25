@@ -54,3 +54,5 @@ dist/
 # Ollama & Local
 ollama/
 *.ollama
+
+ephe
