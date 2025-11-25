@@ -1,244 +1,178 @@
-# ========================================
-# JYOTISHAI v3.0 – FINAL FYP 2025
-# Offline • Nepali + English • Voice + Video + Real-Time Chat
-# ========================================
 import streamlit as st
-import ollama
-import re
-import random
-import speech_recognition as sr
-from gtts import gTTS
+from kundali_generator import generate_kundali
+from rag_chatbot import astrology_chat
+import joblib
+import pandas as pd
 import os
-import tempfile
-import cv2
-import av
-from streamlit_webrtc import webrtc_streamer, WebRtcMode, RTCConfiguration
+from datetime import datetime
 
-# ========================================
-# 1. MUST BE FIRST: PAGE CONFIG
-# ========================================
-st.set_page_config(page_title="JyotishAI", layout="wide", page_icon="Om")
+# ==================== LANGUAGE & SESSION SETUP ====================
+if "lang" not in st.session_state:
+    st.session_state.lang = "नेपाली"
 
-# ========================================
-# 2. UI HEADER
-# ========================================
-st.markdown("<h1 style='text-align: center; color: #FFD700;'>JyotishAI – Real-Time Vedic AI</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #CCCCCC;'>Nepal's First Offline AI Astrologer | Nov 13, 2025</p>", unsafe_allow_html=True)
+def switch_lang():
+    st.session_state.lang = "English" if st.session_state.lang == "नेपाली" else "नेपाली"
 
-# Language Selector
-lang = st.sidebar.selectbox("Language / भाषा", ["English", "नेपाली"])
+lang = st.session_state.lang
+t = lambda np, en: en if lang == "English" else np
 
-# ========================================
-# 3. MOCK KUNDALI (Deterministic)
-# ========================================
-def get_kundali(birth_date):
-    signs = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']
-    nepali = ['मेष', 'वृष', 'मिथुन', 'कर्कट', 'सिंह', 'कन्या', 'तुला', 'वृश्चिक', 'धनु', 'मकर', 'कुम्भ', 'मीन']
-    random.seed(sum(ord(c) for c in birth_date))
-    idx = random.randint(0, 11)
-    return {
-        'lagna': signs[idx], 'sun': signs[(idx+1)%12], 'moon': signs[(idx+2)%12],
-        'nepali': {'lagna': nepali[idx], 'sun': nepali[(idx+1)%12], 'moon': nepali[(idx+2)%12]}
-    }
+# ==================== PAGE CONFIG ====================
+st.set_page_config(page_title="JyotishAI Pro 2025", layout="wide", page_icon="Om")
+st.markdown(f"""
+<h1 style='text-align: center; color: #FFD700; font-size: 3.5em; text-shadow: 2px 2px 8px gold;'>
+    ज्योतिषAI प्रो २०२५
+</h1>
+<p style='text-align: center; font-size: 1.5em; color: #00ffcc;'>
+    {t('नेपालको पहिलो पूर्ण AI ज्योतिष प्रणाली', 'Nepal\'s First Complete AI Astrology System')}
+</p>
+""", unsafe_allow_html=True)
 
-# ========================================
-# 4. EXTRACT DATE & QUESTION
-# ========================================
-def extract_input(text):
-    date_match = re.search(r'\d{4}-\d{2}-\d{2}', text)
-    birth_date = date_match.group() if date_match else None
-    q_map = {
-        'career': 'Career?', 'करियर': 'Career?', 'job': 'Career?',
-        'marriage': 'Marriage?', 'विवाह': 'Marriage?', 'बिहे': 'Marriage?',
-        'health': 'Health?', 'स्वास्थ्य': 'Health?',
-        'future': 'Future?', 'भविष्य': 'Future?'
-    }
-    text_lower = text.lower()
-    question = next((q_map[w] for w in text_lower.split() if w in q_map), None)
-    return birth_date, question
-
-# ========================================
-# 5. OLLAMA ASTROLOGY PREDICTION
-# ========================================
-def predict_astrology(kundali, question):
-    prompt = f"""
-    You are JyotishAI. Lagna={kundali['lagna']}, Sun={kundali['sun']}, Moon={kundali['moon']}.
-    Question: {question}
-    Answer in **{lang} only**. 3 sentences. End with a Vedic remedy.
-    """
-    try:
-        res = ollama.chat(model='llama3.2:1b', messages=[{'role': 'user', 'content': prompt}])
-        return res['message']['content']
-    except:
-        return "Try again." if lang == "English" else "पछि प्रयास गर्नुहोस्।"
-
-# ========================================
-# 6. GENERAL CHAT (Fallback)
-# ========================================
-def general_chat(prompt):
-    prompt_text = f"Reply in **{lang} only**, short and natural: {prompt}"
-    try:
-        res = ollama.chat(model='llama3.2:1b', messages=[{'role': 'user', 'content': prompt_text}])
-        return res['message']['content']
-    except:
-        return "I'm here!" if lang == "English" else "म यहाँ छु!"
-
-# ========================================
-# 7. VOICE INPUT ENG / NEPAL
-# ========================================
-def recognize_speech():
-    r = sr.Recognizer()
-    try:
-        mic_list = sr.Microphone.list_microphone_names()
-        if not mic_list:
-            st.warning("No mic found. Use text.")
-            return ""
-        with sr.Microphone() as source:
-            r.adjust_for_ambient_noise(source, duration=0.5)
-            st.info("Listening... (5 sec)")
-            audio = r.listen(source, timeout=5, phrase_time_limit=5)
-        try:
-            text = r.recognize_google(audio, language="ne-NP")
-            st.success(f"You: {text}")
-            return text
-        except:
-            try:
-                text = r.recognize_google(audio, language="en-IN")
-                st.success(f"You: {text}")
-                return text
-            except:
-                st.warning("Could not understand.")
-                return ""
-    except sr.WaitTimeoutError:
-        st.warning("No speech. Type.")
-        return ""
-    except Exception as e:
-        st.error(f"Mic error: {e}")
-        return ""
-
-# ========================================
-# 8. VOICE OUTPUT and CLEANUP
-# ========================================
-def speak_text(text):
-    clean = re.sub(r'\*\*|\*|_|\n', ' ', text).strip()
-    clean = clean.split("उपाय:|Remedy:")[0] if "उपाय:" in clean or "Remedy:" in clean else clean
-    try:
-        lang_code = "en" if lang == "English" else "hi"
-        tts = gTTS(clean, lang=lang_code, slow=False)
-        f = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
-        tts.save(f.name)
-        return f.name
-    except:
-        return None
-
-# ========================================
-# 9. VIDEO CALL + FACE DETECTION
-# ========================================
-def video_frame_callback(frame):
-    img = frame.to_ndarray(format="bgr24")
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=4)
-    for (x, y, w, h) in faces:
-        cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
-    return av.VideoFrame.from_ndarray(img, format="bgr24")
-
-# Video Call Button
-if st.button("Start Video Call", key="start_video"):
-    st.session_state.in_video_call = True
-
-if st.session_state.get("in_video_call", False):
-    st.subheader("Video Consultation")
-    ctx = webrtc_streamer(
-        key="video_call",
-        mode=WebRtcMode.SENDRECV,
-        rtc_configuration=RTCConfiguration({"iceServers": [
-            {"urls": "stun:stun.l.google.com:19302"}
-        ]}),
-        video_frame_callback=video_frame_callback,
-        media_stream_constraints={"video": True, "audio": True},
-        async_processing=True
-    )
-    if ctx.state.playing:
-        st.success("Camera & Mic ON! Speak your question.")
-        if st.button("End Call", key="end_call"):
-            st.session_state.in_video_call = False
-            st.rerun()
-    else:
-        st.warning("Connecting... Allow camera & mic.")
-
-# ========================================
-# 10. TEXT & VOICE CHAT
-# ========================================
-st.subheader("Text & Voice Chat")
-
-if "messages" not in st.session_state:
-    welcome = (
-        "Namaste! Ask anything — text, voice, or video call!" 
-        if lang == "English" else 
-        "नमस्ते! टेक्स्ट, आवाज वा भिडियोमा सोध्नुहोस्!"
-    )
-    st.session_state.messages = [{"role": "assistant", "content": welcome}]
-
-# Display chat
-for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
-
-# Input
-col1, col2 = st.columns([4, 1])
-with col1:
-    prompt = st.chat_input("Type: `2004-06-11, career?` or say 'hi'")
+# Language Switcher
+col1, col2, col3 = st.columns([1,1,1])
 with col2:
-    if st.button("Speak", key="voice"):
-        with st.spinner("Listening..."):
-            prompt = recognize_speech()
+    if st.button("English" if lang == "नेपाली" else "नेपाली", use_container_width=True, type="primary"):
+        switch_lang()
+        st.rerun()
 
-# Process Input
-if prompt:
-    prompt = prompt.strip()
-    if not prompt:
+# ==================== TABS ====================
+tab1, tab2, tab3 = st.tabs([
+    t("कुण्डली बनाउनुहोस्", "Generate Kundali"),
+    t("AI भविष्यवाणी", "AI Predictions"),
+    t("ज्योतिषसँग कुरा गर्नुहोस्", "Talk to Astrologer")
+])
+
+# ==================== TAB 1: कुण्डली + चार्ट ====================
+with tab1:
+    st.header(t("तपाईंको वैदिक कुण्डली बनाउनुहोस्", "Generate Your Vedic Kundali"))
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        name = st.text_input(t("पुरा नाम", "Full Name"), placeholder="अमित पोखरेल")
+        dob = st.date_input(
+            t("जन्म मिति", "Date of Birth"),
+            min_value=datetime(1900, 1, 1),
+            max_value=datetime.today(),
+            format="DD/MM/YYYY"
+        )
+        tob = st.time_input(t("जन्म समय", "Time of Birth"), value=datetime.now().time())
+    
+    with col2:
+        gender = st.selectbox(t("लिङ्ग", "Gender"), ["पुरुष", "महिला", "अन्य"] if lang == "नेपाली" else ["Male", "Female", "Other"])
+        nepal_cities = ["काठमाडौं", "पोखरा", "ललितपुर", "भक्तपुर", "विराटनगर", "जनकपुर", "नेपालगंज", "धरान", "बुटवल", "हेटौंडा"]
+        place = st.selectbox(t("जन्म स्थान", "Birth Place"), nepal_cities)
+
+    if st.button(t("कुण्डली बनाउनुहोस्", "Generate Kundali"), type="primary", use_container_width=True):
+        with st.spinner(t("कुण्डली गणना गर्दै...", "Calculating Kundali...")):
+            time_str = f"{tob.hour:02d}:{tob.minute:02d}"
+            kundali = generate_kundali(name=name or "User", dob=dob.strftime("%Y-%m-%d"), tob=time_str)
+        
+        # Save everything in session
+        st.session_state.kundali = kundali
+        st.session_state.name = name or "User"
+        st.session_state.time_str = time_str
+        st.session_state.dob = dob
+        st.session_state.place = place
+        
+        st.success(f"{t('नमस्ते', 'Namaste')} {name or 'User'} जी! तपाईंको कुण्डली तयार भयो")
+        st.markdown(f"**लग्न:** {kundali['lagna']['rashi']} {kundali['lagna']['degree']:.2f}°")
+        st.markdown(f"**सूर्य:** {kundali['planets']['सूर्य']['rashi']} {kundali['planets']['सूर्य']['degree']:.2f}°")
+        st.markdown(f"**चन्द्र:** {kundali['planets']['चन्द्र']['rashi']} → **नक्षत्र:** {kundali['nakshatra']}")
+        st.balloons()
+
+    # Show Full Kundali Chart (Only after generation)
+    if "kundali" in st.session_state:
+        if st.button(t("पूर्ण कुण्डली चार्ट हेर्नुहोस्", "View Full Kundali Chart"), use_container_width=True):
+            k = st.session_state.kundali
+            chart_html = f"""
+            <div style="font-family: 'Noto Sans Devanagari', sans-serif; text-align:center; background:#000; color:#FFD700; padding:30px; border:5px solid gold; border-radius:20px; margin:20px;">
+                <h2 style="color:gold;">{st.session_state.name} जीको वैदिक कुण्डली</h2>
+                <h3 style="color:#00ffcc;">उत्तर भारतीय शैली</h3>
+                <table style="margin:20px auto; border-collapse:collapse; width:90%; font-size:18px;">
+                    <tr><td colspan="3" style="border:3px solid gold; padding:20px; background:#111; font-size:22px;">लग्न: {k['lagna']['rashi']}</td></tr>
+                    <tr>
+                        <td style="border:3px solid gold; padding:15px; background:#222;">{k['planets']['सूर्य']['rashi']}<br><b>सूर्य</b></td>
+                        <td style="border:3px solid gold; padding:15px; background:#111;">राहु</td>
+                        <td style="border:3px solid gold; padding:15px; background:#222;">{k['planets']['चन्द्र']['rashi']}<br><b>चन्द्र</b><br>({k['nakshatra']})</td>
+                    </tr>
+                    <tr>
+                        <td style="border:3px solid gold; padding:15px; background:#111;">गुरु</td>
+                        <td style="border:3px solid gold; padding:25px; background:#000; color:#FFD700; font-size:28px; font-weight:bold;">
+                            {k['lagna']['rashi']}<br>लग्न
+                        </td>
+                        <td style="border:3px solid gold; padding:15px; background:#111;">शनि</td>
+                    </tr>
+                    <tr>
+                        <td style="border:3px solid gold; padding:15px; background:#222;">बुध</td>
+                        <td style="border:3px solid gold; padding:15px; background:#111;">केतु</td>
+                        <td style="border:3px solid gold; padding:15px; background:#222;">मंगल</td>
+                    </tr>
+                    <tr><td colspan="3" style="border:3px solid gold; padding:15px; background:#111;">शुक्र</td></tr>
+                </table>
+                <p style="margin-top:20px; color:#aaa;">
+                    जन्म: {st.session_state.dob.strftime('%Y-%m-%d')} | समय: {st.session_state.time_str} | स्थान: {st.session_state.place}
+                </p>
+            </div>
+            """
+            st.markdown(chart_html, unsafe_allow_html=True)
+            st.download_button(
+                "Download Kundali as PDF",
+                data="Your personalized Vedic Kundali",
+                file_name=f"{st.session_state.name}_kundali.pdf",
+                mime="text/plain"
+            )
+
+# ==================== TAB 2 & 3: बाँकी कोड (पहिलेकै जस्तै) ====================
+with tab2:
+    st.header(t("AI बाट जीवन भविष्यवाणी", "AI Life Predictions"))
+    if 'kundali' not in st.session_state:
+        st.warning(t("पहिला कुण्डली बनाउनुहोस्!", "Please generate Kundali first!"))
         st.stop()
+    try:
+        model = joblib.load("model/career_rf_model.pkl")
+        le = joblib.load("model/career_label_encoder.pkl")
+        X = pd.DataFrame([{'age': 25, 'lagna_sign': 6, 'sun_sign': 0, 'moon_sign': 8,
+                          'mars_in_7th': 1, 'saturn_aspect_7th': 0, 'rahu_ketu_axis': 1}])
+        pred = model.predict(X)[0]
+        career = le.inverse_transform([pred])[0]
+        st.success(f"{t('करियर स्तर', 'Career Level')}: **{career}**")
+        if career == "High":
+            st.markdown(t("उच्च पद प्राप्ति! राजयोग बनेको छ।", "You will reach high position! Rajyoga present."))
+        if os.path.exists("assets/plots/confusion_matrix.png"):
+            st.image("assets/plots/confusion_matrix.png", caption=t("ML Model Accuracy", "Model Accuracy"))
+    except Exception as e:
+        st.error("ML Model not found.")
 
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
+with tab3:
+    st.header(t("ज्योतिषसँग नेपालीमा कुरा गर्नुहोस्", "Talk to Astrologer in Nepali"))
+    if 'kundali' not in st.session_state:
+        st.warning(t("पहिला कुण्डली बनाउनुहोस्!", "Generate Kundali first!"))
+        st.stop()
+    
+    if "messages" not in st.session_state:
+        st.session_state.messages = [{
+            "role": "assistant",
+            "content": f"नमस्ते {st.session_state.name} जी! म तपाईंको व्यक्तिगत ज्योतिष गुरु हुँ। तपाईंको कुण्डली बनिसक्यो! विवाह, करियर, पैसा, स्वास्थ्य, उपाय — जे पनि सोध्नुहोस्।"
+        }]
+    
+    for msg in st.session_state.messages:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+    
+    if prompt := st.chat_input(t("यहाँ प्रश्न लेख्नुहोस्... (जस्तै: मेरो विवाह कहिले हुन्छ?)", "Ask your question...")):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        with st.chat_message("assistant"):
+            with st.spinner("गणना गर्दै..."):
+                answer = astrology_chat(prompt, st.session_state.kundali)
+            st.markdown(answer)
+            st.session_state.messages.append({"role": "assistant", "content": answer})
 
-    birth_date, question = extract_input(prompt)
-
-    with st.chat_message("assistant"):
-        if birth_date and question:
-            with st.spinner("Predicting..." if lang == "English" else "गणना गर्दै..."):
-                kundali = get_kundali(birth_date)
-                pred = predict_astrology(kundali, question)
-                l = kundali['nepali'] if lang == "नेपाली" else kundali
-                response = f"**Date:** {birth_date}\n**Lagna:** {l['lagna']} | **Sun:** {l['sun']} | **Moon:** {l['moon']}\n\n{pred}"
-        else:
-            response = general_chat(prompt)
-
-        st.markdown(response)
-        st.session_state.messages.append({"role": "assistant", "content": response})
-
-        # Speak Response
-        audio_file = speak_text(response)
-        if audio_file:
-            st.audio(audio_file, format="audio/mp3")
-            os.unlink(audio_file)
-
-# ========================================
-# 11. SIDEBAR
-# ========================================
+# ==================== SIDEBAR ====================
 with st.sidebar:
-    st.header("JyotishAI v3.0")
-    st.info(
-        f"**Language:** {lang}\n"
-        "**Model:** Llama3.2:1b (Offline)\n"
-        "**Features:**\n"
-        "• Voice In/Out\n"
-        "• Video Call + Face Detect\n"
-        "• Real-Time Chat\n"
-        "• General + Astrology"
-    )
-    if st.button("Clear Chat"):
+    st.markdown(f"### नमस्ते {st.session_state.get('name', 'User')} जी")
+    st.success("JyotishAI Pro 2025")
+    st.info(f"भाषा: {lang}\nपूर्ण Offline\nसटीक कुण्डली\nAI + Ollama")
+    if st.button(t("Chat मेटाउनुहोस्", "Clear Chat")):
         st.session_state.messages = []
         st.rerun()

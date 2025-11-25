@@ -1,38 +1,48 @@
-# Python & Virtual Environment
-.venv/
-venv/
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
 *.pyo
 *.pyd
-*.py~
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
 
-# Jupyter & Notebooks
-.ipynb_checkpoints/
-*.ipynb
+# Virtual Environment
+.venv/
+env/
+ENV/
 
 # Streamlit
-.streamlit/
-streamlit_config.toml
+.streamlit/secrets.toml
+.streamlit/config.toml
 
-# Data & Models
-data/raw/
-data/clean/*.csv
+# Ollama & ChromaDB
+chroma_db/
+ollama_logs/
+
+# ML Models (ठूला फाइलहरू Git मा नराख्नुहोस्)
 model/*.pkl
+model/*.joblib
 
-# Assets
-assets/plots/*.png
-assets/*.png
-assets/*.jpg
+# Data
+data/raw/
+data/clean/
+*.csv
+*.xlsx
 
-# Logs & Temp
+# Ephemeris (पुरानो)
+ephe/
+
+# Logs & Cache
 *.log
-*.tmp
-temp/
-
-# OS
-.DS_Store
-Thumbs.db
+.cache/
+.temp/
+tmp/
 
 # IDE
 .vscode/
@@ -40,19 +50,11 @@ Thumbs.db
 *.swp
 *.swo
 
-# Build & Dist
-build/
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
 dist/
+build/
 *.egg-info/
-*.egg
-
-# Environment
-.env
-.env.local
-*.env
-
-# Ollama & Local
-ollama/
-*.ollama
-
-ephe
