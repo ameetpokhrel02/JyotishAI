@@ -1,51 +1,40 @@
-# JyotishAI – Real-Time Vedic Astrology Chatbot (JyotishAI in 2025)
+<div align="center">
 
-![JyotishAI](assets/logo.png)
+# ज्योतिषAI प्रो २०२५  
+**नेपालको पहिलो पूर्ण Offline AI ज्योतिष प्रणाली**  
+**JyotishAI Pro 2025 – Nepal's First Complete AI-Powered Vedic Astrology System**
 
-**Nepal’s first offline, voice + video-enabled Vedic astrology AI**  
-**100% Local • No Internet • Nepali/English**
+![Python](https://img.shields.io/badge/Python-3.12-blue) ![Streamlit](https://img.shields.io/badge/Streamlit-1.38-red) ![Ollama](https://img.shields.io/badge/Ollama-Llama3.2:1b-green) ![License](https://img.shields.io/badge/License-MIT-yellow)
 
----
+</div>
 
-## Features
+## परियोजना विशेषता (Project Features)
 
-| Feature | Description |
-|-------|-----------|
-| **Real-Time Chat** | Type or speak → Instant reply |
-| **Voice Input** | Speak in **Nepali/English** |
-| **Voice Output** | AI **speaks in Nepali** |
-| **Video Call** | Face-to-face consultation + face detection |
-| **Auto Kundali** | From birth date (`2004-06-11`) |
-| **Smart Prediction** | Lagna, Sun, Moon + Vedic remedy |
-| **General Chat** | Ask anything (not just astrology) |
-| **Full History** | All chats saved |
+| सुविधा | विवरण |
+|--------|-------|
+| Real कुण्डली | PyEphem बाट सूर्य, चन्द्र, लग्न, नक्षत्र गणना |
+| AI भविष्यवाणी | Random Forest ML Model (करियर, स्वास्थ्य, विवाह) |
+| Ollama च्याटबोट | Llama3.2:1b बाट नेपालीमा ज्योतिष सल्लाह |
+| RAG सिस्टम | 100+ पृष्ठ वैदिक ज्योतिष PDF बाट सटीक जवाफ |
+| सुन्दर कुण्डली चार्ट | उत्तर भारतीय शैलीको HTML चार्ट |
+| नेपाली + English | पूर्ण भाषा स्विचर |
+| पूर्ण Offline | इन्टरनेट बिना चल्छ |
+| PDF डाउनलोड | कुण्डली PDF डाउनलोड गर्न सकिन्छ |
 
----
+## डेमो स्क्रिनसटहरू
 
-## Demo
+![Kundali](image-1.png)
+![Chatbot](image-2.png)
+![ML Prediction](image-3.png)
+## आवश्यकता (Requirements)
 
-> **You:** `2004-06-11, career?`  
-> **JyotishAI:**  
-> **Lagna:** सिंह | **Sun:** मिथुन | **Moon:** मेष  
-> तपाईंको करियर २०२७ पछि उचाइमा पुग्नेछ...  
-> **उपाय:** बिहीबार केरा दान गर्नुहोस्।
-
----
-
-## How to Run
-
-```bash
-# 1. Clone
-git clone https://github.com/amyths04/jyotishai.git
-cd jyotishai
-
-# 2. Setup
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
-# 3. Run Ollama (in another terminal)
-ollama run llama3.2:1b
-
-# 4. Launch
-streamlit run chatbot.py
+```txt
+streamlit
+ollama
+pyephem
+scikit-learn
+pandas
+numpy
+chromadb
+pypdf2
+joblib
